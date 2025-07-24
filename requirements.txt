@@ -1,0 +1,10 @@
+# rmdir /s /q "cloned_repos\Portfolio-Website" to remove the cloned repository
+# .\venv\Scripts\activate to activate the virtual environment
+# pip install -r requirements.txt to install dependencies
+
+langchain
+langchain_chroma
+langchain_community
+langchain_core
+langchain_openai
+unstructured
