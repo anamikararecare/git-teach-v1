@@ -1,6 +1,6 @@
 import os
 import json
-from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer, disk_offload
+from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 import torch
 from huggingface_hub import login
 login(new_session=False)
@@ -191,7 +191,6 @@ Generate a beginner-friendly guide to set up this project in VSCode:
     model = AutoModelForCausalLM.from_pretrained(model_id,
                                                  torch_dtype=torch.bfloat16,
                                                  device_map="auto")
-    model = disk_offload(model, offload_dir="./pycache")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     pl = pipeline("text-generation", model=model, tokenizer=tokenizer, device=-1)
     response = pl(question)
@@ -216,7 +215,7 @@ def filter_boilerplate_files(repo_path):
     result = {"boilerplate_files": [], "main_code": []}
     for root, dirs, files in os.walk(repo_path):
         for file in files:
-            if file in boilerplate_files:
+            if file in boilerplate_files or root in boilerplate_files:
                 result["boilerplate_files"].append(os.path.join(root, file))
             else:
                 result["main_code"].append(os.path.join(root, file))

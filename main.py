@@ -24,13 +24,17 @@ def fetch_repo(repo_url: str, skill_level: str = typer.Option("beginner", help="
     tech_stack = detect_tech_stack(clone_dir)
     typer.echo(f"Detected Tech Stack: {tech_stack}")
 
+    typer.echo("\n Filtering boilerplate code...")
+    filtered_code = filter_boilerplate_files(clone_dir)
+    typer.echo(f"Found {len(filtered_code["main_code"])} relevant files.")
+    typer.echo(f"The relevant files are: {filtered_code["main_code"]}")
+
+"""
     typer.echo("\nGenerating setup guide...")
     setup_guide = generate_setup_guide(tech_stack)
     typer.echo(f"\n=== Setup Guide ===\n{setup_guide}")
-
-    typer.echo("\n Filtering boilerplate code...")
-    filtered_code = filter_boilerplate_files(clone_dir)
-    typer.echo(f"Found {len(filtered_code['code'])} relevant files.")
+"""
+    
 
 if __name__ == "__main__":
     app()
