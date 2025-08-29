@@ -11,6 +11,7 @@ def fetch_repo(repo_url: str, skill_level: str = typer.Option("beginner", help="
     repo_name = repo_url.rstrip("/").split("/")[-1]
     clone_dir = f"./cloned_repos/{repo_name}"
 
+
     if os.path.exists(clone_dir):
         typer.echo(f"Repository {repo_name} already exists in {clone_dir}. Skipping cloning...")
     else:
@@ -29,11 +30,11 @@ def fetch_repo(repo_url: str, skill_level: str = typer.Option("beginner", help="
     typer.echo(f"Found {len(filtered_code["main_code"])} relevant files.")
     typer.echo(f"The relevant files are: {filtered_code["main_code"]}")
 
-"""
+
     typer.echo("\nGenerating setup guide...")
     setup_guide = generate_setup_guide(tech_stack)
     typer.echo(f"\n=== Setup Guide ===\n{setup_guide}")
-"""
+
     
 
 if __name__ == "__main__":

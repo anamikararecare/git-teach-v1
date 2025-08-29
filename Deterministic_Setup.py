@@ -2,12 +2,9 @@ import os
 import json
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 import torch
-from huggingface_hub import login
-login(new_session=False)
 
-# Replace your openai api key here
-# OPENAI_API_KEY = "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"
-# llm = ChatOpenAI(model="gpt-3.5-turbo", openai_api_key=OPENAI_API_KEY)
+from google import genai
+from google.genai.types import HttpOptions
 
 def detect_tech_stack(repo_path):
     tech_stack = {
@@ -77,12 +74,6 @@ def detect_tech_stack(repo_path):
                 tech_stack["languages"].add("Go")
             elif file.endswith(".csproj"):
                 tech_stack["languages"].add("C#")
-            
-            # === Framework Detection (File-Based) ===
-            if "docker-compose.yml" in file:
-                tech_stack["build_tools"].add("Docker")
-            if "Makefile" in file:
-                tech_stack["build_tools"].add("Make")
     
     _detect_frameworks_from_imports(repo_path, tech_stack)
     
@@ -126,7 +117,7 @@ def _parse_package_json(file_path, tech_stack):
 
 def _detect_frameworks_from_imports(repo_path, tech_stack):
     # Only run if language is Python/JS (for brevity)
-    if "Python" not in tech_stack["languages"] and "JavaScript" not in tech_stack["languages"]:
+    if ("Python" not in tech_stack["languages"]) and ("JavaScript" not in tech_stack["languages"]):
         return
     
     for root, _, files in os.walk(repo_path):
@@ -187,15 +178,16 @@ Generate a beginner-friendly guide to set up this project in VSCode:
 3. Explain how to configure the environment.
 4. Why is this tech stack used? What are alternatives generally used for this project type?
 """
-    model_id = "tiiuae/falcon-7b-instruct"
-    model = AutoModelForCausalLM.from_pretrained(model_id,
-                                                 torch_dtype=torch.bfloat16,
-                                                 device_map="auto")
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    pl = pipeline("text-generation", model=model, tokenizer=tokenizer, device=-1)
-    response = pl(question)
 
-    print(response)
+    client = genai.Client(http_options=HttpOptions(api_version="v1"))
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=question,
+    )
+    print(response.text)
+
+
+    
 
 boilerplate_files = { "README.md", 
                      "LICENSE", 
