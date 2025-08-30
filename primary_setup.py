@@ -3,6 +3,10 @@ import git
 import typer
 
 from deterministic_setup import detect_tech_stack, generate_setup_guide, filter_boilerplate_files
+from chunking import *
+
+from google import genai
+from google.genai.types import HttpOptions
 
 app = typer.Typer()
 
@@ -27,15 +31,38 @@ def fetch_repo(repo_url: str, skill_level: str = typer.Option("beginner", help="
 
     typer.echo("\n Filtering boilerplate code...")
     filtered_code = filter_boilerplate_files(clone_dir)
-    typer.echo(f"Found {len(filtered_code["main_code"])} relevant files.")
-    typer.echo(f"The relevant files are: {filtered_code["main_code"]}")
-
+    # typer.echo(f"Found {len(filtered_code)} relevant files.")
+    typer.echo(f"The relevant files are: {filtered_code}")
 
     typer.echo("\nGenerating setup guide...")
     setup_guide = generate_setup_guide(tech_stack)
     typer.echo(f"\n=== Setup Guide ===\n{setup_guide}")
 
-    
+    files = retrieve_file_list(filtered_code)
+    chapter_guide = index_repository(files)
+    typer.echo(f"Summary: {chapter_guide['summary']}")
+
+    question = f"""
+Given this chapter list (JSON), propose a high-level chapter itinerary with 1-line summaries per chapter. 
+You do not need to conform to this chapter list - you may combine functions where logical.
+Do not invent code beyond what’s referenced. Return a numbered list. 
+{chapter_guide}
+"""
+    client = genai.Client(http_options=HttpOptions(api_version="v1"))
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=question,
+    )
+
+    typer.echo(response.text)
+    next_question = typer.prompt("Ready to start?")
+    while next_question != "exit":
+        next_question = typer.prompt("Ready?")
+        new_response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=(next_question + f"{chapter_guide}"),
+    )
+        typer.echo(new_response.text)
 
 if __name__ == "__main__":
     app()

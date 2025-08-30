@@ -186,9 +186,11 @@ Generate a beginner-friendly guide to set up this project in VSCode:
     )
     print(response.text)
 
-
+def generate_project_overview(tech_stack):
+    question = f"""
+This project has the 
+"""
     
-
 boilerplate_files = { "README.md", 
                      "LICENSE", 
                      ".gitignore", 
@@ -212,4 +214,17 @@ def filter_boilerplate_files(repo_path):
             else:
                 result["main_code"].append(os.path.join(root, file))
     
-    return result
+    question = f"""
+The project uses the following non-boilerplate files:
+{result['main_code']}
+
+Based on the given list, output ONLY a Python list of the KEY files that a software developer working on this project would need to focus on, meaning the files that involve actual thinking rather than setup. These files will be the main ones and can have supporters that they call outside the list of up to 10, but do no more than 10 main files, and your answer text should simply be this list.
+Just output the python list, don't have any pre-amble like "the relevant files are..." or anything like that, because i need to incorporate your response into my code.
+"""
+    client = genai.Client(http_options=HttpOptions(api_version="v1"))
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=question,
+    )
+
+    return str(response.text)
